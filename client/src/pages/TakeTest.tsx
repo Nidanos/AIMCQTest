@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Brain, Clock, ChevronLeft, ChevronRight, Save, CheckCircle2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Question } from "@shared/schema";
 import ReactMarkdown from "react-markdown";
@@ -82,6 +82,9 @@ export default function TakeTest({ params }: { params: { attemptId: string } }) 
       });
     },
     onSuccess: () => {
+      // The dashboard caches its lists forever (staleTime: Infinity), so tell it this attempt changed
+      queryClient.invalidateQueries({ queryKey: ["/api/attempts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tests"] });
       toast({
         title: "Test Submitted!",
         description: "Your answers have been evaluated. Viewing results...",
